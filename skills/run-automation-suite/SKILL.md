@@ -1,6 +1,12 @@
 ---
 name: run-automation-suite
-description: Run local Appium test scripts against Kobiton devices. Guides you through app upload, device selection, script capability parsing, and local execution.
+description: >-
+  Run local Appium test scripts against Kobiton devices — guides you through
+  app upload, device selection, capability parsing, and local execution.
+  Use when the user asks to run mobile tests on Kobiton, validate an APK or
+  IPA on real devices, or kick off a Kobiton automation run from a local
+  script directory. Trigger with "run kobiton tests" or "execute on kobiton
+  devices".
 ---
 
 ## Workflow
