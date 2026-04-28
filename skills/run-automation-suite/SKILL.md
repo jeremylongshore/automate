@@ -192,4 +192,14 @@ The skill renders capabilities with `--browserName chrome --testingType web` (th
 
 ## Resources
 
-<!-- Curated reference links are addressed in a separate PR (closes fork #8 / upstream kobiton/automate#14). -->
+The links below cover the canonical Kobiton and Appium surfaces relevant to this skill. Kobiton-side, the team should refine specific deep-link URLs (e.g., the Kobiton capability builder's exact docs path) to whatever the platform team currently considers authoritative.
+
+- [Kobiton platform overview](https://kobiton.com) — the device cloud the skill targets; account signup
+- [Kobiton documentation](https://docs.kobiton.com) — Kobiton-side reference for desired capabilities, vendor extensions, and platform behavior
+- [Appium official documentation](https://appium.io) — Appium project reference, including driver-specific capabilities and the Appium 2.x driver model
+- [Plugin source on GitHub](https://github.com/kobiton/automate) — issues, contributions, releases
+- [Sample prompt examples](../../docs/examples.md) — one natural-language prompt example per tool, maintained alongside the plugin
+
+### Related skills
+
+<!-- Cross-link other Kobiton-published skills here as they ship. -->
