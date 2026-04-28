@@ -44,20 +44,9 @@ Detect the language and runtime from the file extension:
 | `.cs` / `.csproj` | .NET | `dotnet test` |
 | `.java` | Java | `mvn test` or `java -cp ...` |
 
-Read the script file and extract key capabilities from the source code:
-
-- `platformName` (Android / iOS)
-- `udid` (hardcoded or parameterized)
-- `app` (app URL or kobiton-store reference)
-- `sessionName`, `sessionDescription`
-- `automationName` (UiAutomator2, XCUITest, etc.)
-- `browserName` (if browser-based test)
-- `deviceOrientation`
-- Any `kobiton:*` vendor extensions (especially `kobiton:runtime`)
+Read the script file and extract key capabilities from the source code. The full field list, the Appium-runtime opt-in special case, and the per-field comparison policy live in [`references/capabilities.md`](references/capabilities.md).
 
 Identify how the UDID is passed into the script (CLI argument, environment variable, or hardcoded) so it can be overridden with the selected device.
-
-**Appium runtime:** Check if the script contains `'kobiton:runtime': 'appium'` or equivalent. If it does NOT, do not inject it — the default Kobiton runtime will be used. Only if the user explicitly asks to use the Appium runtime should you suggest adding `'kobiton:runtime': 'appium'` to the script's capabilities.
 
 **Validate capabilities:** After parsing the script, run the render script to generate the correct capabilities for the selected device and app:
 
@@ -74,11 +63,7 @@ node skills/run-automation-suite/scripts/render-capabilities.js \
 
 For web testing, replace `--app <app>` with `--browserName <browser> --testingType web`.
 
-Compare the JSON output against the parsed script capabilities:
-
-- **Must-match** (`platformName`, `platformVersion`, `appium:udid`, `appium:deviceName`, `appium:app`/`browserName`, `appium:automationName`): If different, show what will change and edit the script automatically. These must match the selected device/app.
-- **Suggested defaults** (`kobiton:sessionName`, `kobiton:sessionDescription`, `kobiton:deviceOrientation`, `kobiton:captureScreenshots`, `appium:noReset`, `appium:fullReset`): If different or missing, show the diff and ask the user before changing. The user may have intentionally set different values.
-- **User-controlled**: Any capabilities in the user's script that are not in the rendered output — leave untouched. Never inject or modify `kobiton:runtime` unless the user explicitly asks.
+Apply the per-field comparison policy from [`references/capabilities.md`](references/capabilities.md) to reconcile the rendered output against the parsed script capabilities (must-match → auto-edit, suggested-default → ask, user-controlled → leave untouched).
 
 ### 4. Confirm & execute
 
