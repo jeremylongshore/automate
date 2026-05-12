@@ -63,6 +63,91 @@ export KOBITON_AUTH="Basic $(echo -n 'username:apikey' | base64)"
 
 > **Note:** OAuth and API key auth cannot coexist in a single `.mcp.json`. The default config (no `headers` block) uses OAuth via browser login. The API key config uses a `headers` block with `${KOBITON_AUTH}`. To switch, replace `.mcp.json` with the appropriate format.
 
+## Install in Other MCP Clients
+
+The Kobiton MCP server (`https://api.kobiton.com/mcp`) speaks the open Model Context Protocol and can be consumed by any spec-compliant MCP client — not just Claude Code. Below are the install configs for several common clients. **All configs below are derived from each client's published documentation; the Kobiton-side OAuth flow is the same across all of them, but Intent Solutions has not yet end-to-end-tested every client. Please file issues if a config below does not work for your setup.**
+
+### Cursor
+
+Cursor reads MCP servers from `.cursor/mcp.json` at the project root (or `~/.cursor/mcp.json` for global). This repo ships a default project-level config at [`.cursor/mcp.json`](.cursor/mcp.json):
+
+```json
+{
+  "mcpServers": {
+    "kobiton": {
+      "url": "https://api.kobiton.com/mcp"
+    }
+  }
+}
+```
+
+On first connection Cursor opens a browser for OAuth login (same flow as Claude Code's `/mcp` command). Cursor's fixed OAuth redirect URL is `cursor://anysphere.cursor-mcp/oauth/callback`. Reference: [cursor.com/docs/context/mcp](https://cursor.com/docs/context/mcp).
+
+### Gemini CLI
+
+Gemini CLI reads extension configs from `gemini-extension.json` at the repo root. This repo ships one via [upstream PR #28](https://github.com/kobiton/automate/pull/28) (Phase 1 — Gemini CLI support by @huytunguyenn). Install via:
+
+```bash
+gemini extensions install kobiton/automate
+```
+
+Cross-tool agent instructions live in [`AGENTS.md`](AGENTS.md), which Gemini CLI consumes as `contextFileName`.
+
+### Codex CLI
+
+Codex CLI reads MCP server configs from `~/.codex/config.toml`. Add:
+
+```toml
+[mcp_servers.kobiton]
+url = "https://api.kobiton.com/mcp"
+```
+
+Codex CLI consumes [`AGENTS.md`](AGENTS.md) for cross-tool agent instructions. Reference: [openai.com/codex](https://openai.com/codex/) (Codex CLI docs).
+
+### GitHub Copilot CLI
+
+GitHub Copilot CLI support was added in [upstream PR #10](https://github.com/kobiton/automate/pull/10). See PR body for install instructions specific to your Copilot CLI version.
+
+### ChatGPT Apps SDK
+
+ChatGPT (via the Apps SDK) consumes MCP servers via HTTPS endpoint registered in ChatGPT developer mode. Point ChatGPT at:
+
+```
+https://api.kobiton.com/mcp
+```
+
+The Apps SDK does not require a separate manifest file; tool descriptors, OAuth flow, and `_meta.ui` widget hints flow through the MCP protocol itself. Reference: [developers.openai.com/apps-sdk/build/mcp-server](https://developers.openai.com/apps-sdk/build/mcp-server).
+
+### Continue (and other generic MCP clients)
+
+Most generic MCP clients (Continue, Cline, etc.) support the open Streamable HTTP transport. Use a config block like:
+
+```json
+{
+  "mcpServers": {
+    "kobiton": {
+      "url": "https://api.kobiton.com/mcp"
+    }
+  }
+}
+```
+
+Adjust to your client's specific format. The server URL is the same; OAuth handshake is the same. If your client doesn't support OAuth, fall back to the API-key auth path (see [API Key Authentication](#api-key-authentication-alternative) above) — most clients accept custom `headers` blocks.
+
+### Capability matrix (what works where)
+
+| Client | OAuth login | API key auth | AGENTS.md / skill | Hooks (Claude-Code-specific) |
+|---|---|---|---|---|
+| Claude Code | ✅ | ✅ | ✅ skill | ✅ |
+| Cursor | ✅ | via custom `headers` block | n/a (uses Cursor rules) | ❌ |
+| Gemini CLI | ✅ | via env var | ✅ AGENTS.md | ❌ |
+| Codex CLI | ✅ | via env var | ✅ AGENTS.md | ❌ |
+| GitHub Copilot CLI | ✅ | via env var | ✅ AGENTS.md | ❌ |
+| ChatGPT Apps SDK | ✅ | n/a (web app) | n/a (uses tool descriptors) | ❌ |
+| Continue / Cline | ✅ | ✅ | n/a | ❌ |
+
+Hooks (the `hooks/` directory referenced elsewhere in this repo) are a Claude Code-specific feature; other MCP clients won't honor them. Server-side observability via OpenTelemetry (proposed in fork issue #28) would be the cross-client equivalent — works uniformly for every client because instrumentation lives at the MCP server, not the agent host.
+
 ## What You Can Do
 
 **Ask Claude naturally:**
