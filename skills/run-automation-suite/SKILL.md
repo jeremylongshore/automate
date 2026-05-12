@@ -170,7 +170,25 @@ Present a summary to the user:
 
 ## Examples
 
-<!-- Worked end-to-end examples are addressed in a separate PR (closes fork #6 / upstream kobiton/automate#15). -->
+The following are demonstration scenarios drawn from the workflow's currently-supported branches. Each one maps to a documented Step in the workflow above. Adjust the specific apps, devices, and prompt phrasing to whatever Kobiton's customers most often ask for.
+
+### Run an Android suite on the first available matching device
+
+> "Run the test scripts in `./tests/checkout/` on a Pixel 7 if available, otherwise any Android device with API 33 or higher."
+
+The skill identifies the test directory, queries `listDevices` filtered to Android API 33+ (preferring Pixel 7), reserves the device, parses capabilities from the test config, executes the suite via the Bash tool in the background, opens the live session in the user's browser, and returns the Kobiton portal session URL with collected artifacts (video, logs, screenshots, reports).
+
+### Reuse an existing app build on a specific device + version
+
+> "Use the app at `kobiton-store:v72107` and run my login tests on a Galaxy S22 with Android 13."
+
+The skill takes the existing-app branch in Step 1 (no upload), confirms the requested device is available via `getDeviceStatus`, reserves it via `reserveDevice`, parses the user's login tests, executes, and returns the session summary on completion.
+
+### Run a browser-based web test instead of a native app
+
+> "Run my Selenium tests in `./tests/web/` against Chrome on a recent Android device."
+
+The skill renders capabilities with `--browserName chrome --testingType web` (the `web` branch of Step 3) instead of `--app`, parses the script as a browser-based test, and collects the same artifact set on completion.
 
 ## Resources
 
