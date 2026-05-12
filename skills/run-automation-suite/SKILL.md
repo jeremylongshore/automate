@@ -15,6 +15,14 @@ compatibility: "Designed for Claude Code; requires Node.js >= 18 and Appium 2.x 
 allowed-tools: "Read, Write, Edit, Bash(node:*), Bash(python:*), Bash(dotnet:*), Bash(mvn:*), Bash(java:*), Bash(open:*), Bash(xdg-open:*)"
 ---
 
+# Run Automation Suite
+
+## Overview
+
+Execute Appium-based mobile test automation suites on Kobiton's device cloud. Given a directory of local test scripts, identify the target app, select an available device, parse and reconcile capabilities, run the suite, and surface results back to the user with session links and artifacts.
+
+Use this skill when the user asks to run mobile tests on Kobiton, validate an APK or IPA on real devices, or trigger a Kobiton-hosted automation run from a local script directory.
+
 ## Workflow
 
 ### 1. Identify the app
