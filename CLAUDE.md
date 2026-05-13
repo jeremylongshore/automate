@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 pnpm install                     # Node 18+ minimum (CI pins Node 20), pnpm 8+ minimum (CI pins pnpm 9)
 pnpm run validate                # JSON/YAML/manifest/frontmatter structural checks
-pnpm test                        # vitest: 50 tests total — see "Where tests live" below
+pnpm test                        # vitest — see "Where tests live" below for the file map; run `pnpm test` for current counts
 pnpm run test:watch              # vitest watch mode while iterating
 pnpm run build                   # emits dist/tool-definitions.yaml (for S3 publish, not runtime)
 
@@ -21,13 +21,15 @@ pnpm exec vitest run hooks/scripts/validate-userintent.test.mjs
 
 CI (`.github/workflows/ci.yml`) runs `pnpm run validate && pnpm test` on every push/PR to `main` with Node 20 / pnpm 9. Both checks should pass before merging — branch protection is not enforced, so the discipline is on reviewers. There is no lint step.
 
-**Where tests live** (50 total):
+**Where tests live**:
 
-| Path | Count | Covers |
-|------|-------|--------|
-| `scripts/validate.test.js` | 14 | structural validation: manifest, tools, skills, frontmatter |
-| `skills/run-automation-suite/scripts/render-capabilities.test.js` | 8 | Appium capability renderer |
-| `hooks/scripts/*.test.mjs` (4 files) | 28 | per-hook valid-input, boundary, malformed-JSON, PII-leak negatives |
+| Path | Covers |
+|------|--------|
+| `scripts/validate.test.js` | structural validation: manifest, tools, skills, frontmatter |
+| `skills/run-automation-suite/scripts/render-capabilities.test.js` | Appium capability renderer |
+| `hooks/scripts/*.test.mjs` (one per hook) | per-hook valid-input, boundary, malformed-JSON, PII-leak negatives |
+
+Run `pnpm test` for the current count.
 
 **If CI fails:** run `pnpm run validate && pnpm test` locally — both surface line-level errors. For validation, the fixture in `scripts/validate.test.js` documents the expected shape; mirror it. For hook tests, see `hooks/THREAT-MODEL.md` for the negative cases each handler must cover.
 
