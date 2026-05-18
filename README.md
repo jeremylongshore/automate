@@ -170,6 +170,7 @@ This matrix covers **Claude-family surfaces specifically** — Claude Code, Cowo
 - **Cowork** uses the same `.claude-plugin/plugin.json` manifest path + extension types as Claude Code per the [Cowork extensions docs](https://claude.com/docs/cowork/3p/extensions). Drop-in plugin portability across Claude Code and Cowork is not yet formally documented by Anthropic; install-test is currently being verified.
 - **Claude Desktop** is not currently documented as a Skills-capable surface in Anthropic's [Use Skills in Claude](https://support.claude.com/en/articles/12512180-use-skills-in-claude) doc — the `.claude-plugin/` skill loader is absent there. Atomic MCP tools still work via the Custom Connector path.
 - **For the full 10-row matrix** covering claude.ai/code cloud sandbox, Claude Code Remote Control, Claude Dispatch, the Claude for Chrome extension, and the Claude API + MCP Connector developer surface — plus per-cell Anthropic-doc citations and the L1 / L2 / L3 architectural mapping — see [`docs/issue-53-one-pager.md`](docs/issue-53-one-pager.md).
+- **For an architectural sketch of future-direction variants** (hybrid local + remote MCP pattern; staging-upload `executeTestRun` tool; Kobiton-branded bundled host; server-side hosted test runner) with a 8-dimension tradeoff matrix, see [Bundled-host architectural sketch — Kobiton Automate plugin](https://gist.github.com/jeremylongshore/8e6325b6bb2b438d9fa6d8d9161c3a54) (public gist).
 
 ## What You Can Do
 
