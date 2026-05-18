@@ -134,7 +134,9 @@ Most generic MCP clients (Continue, Cline, etc.) support the open Streamable HTT
 
 Adjust to your client's specific format. The server URL is the same; OAuth handshake is the same. If your client doesn't support OAuth, fall back to the API-key auth path (see [API Key Authentication](#api-key-authentication-alternative) above) — most clients accept custom `headers` blocks.
 
-### Capability matrix (what works where)
+### Non-Claude MCP client capability matrix (auth + agent surface)
+
+This matrix covers **non-Claude MCP clients** specifically — Cursor, Gemini CLI, Codex CLI, etc. For Claude-family surfaces (Claude Code, Cowork, Claude Desktop, claude.ai web, mobile), see the [Claude surface compatibility](#claude-surface-compatibility) section below — it answers a different question.
 
 | Client | OAuth login | API key auth | AGENTS.md / skill | Hooks (Claude-Code-specific) |
 |---|---|---|---|---|
@@ -150,20 +152,24 @@ Hooks (the [`hooks/`](hooks/) directory) are a Claude Code-specific feature; oth
 
 ## Claude surface compatibility
 
-Different Claude surfaces (Claude Code, Cowork, Claude Desktop, the claude.ai web app, mobile) expose different capabilities, so the same plugin behaves differently depending on where it's installed. Quick reference for "what works where" — full per-surface detail + architectural mapping live in [`docs/issue-53-one-pager.md`](docs/issue-53-one-pager.md).
+This matrix covers **Claude-family surfaces specifically** — Claude Code, Cowork, Claude Desktop, claude.ai web, and mobile. For non-Claude MCP clients (Cursor, Gemini CLI, Codex CLI, etc.), see the [Non-Claude MCP client capability matrix](#non-claude-mcp-client-capability-matrix-auth--agent-surface) above. Quick reference for "what works where" — full per-surface detail + architectural mapping live in [`docs/issue-53-one-pager.md`](docs/issue-53-one-pager.md).
 
-| Claude surface | Atomic MCP tools (`listDevices`, `reserveDevice`, `getSession`, …) | Orchestrated `run-automation-suite` skill | Setup |
+| Claude surface | Atomic MCP tools | Orchestrated skill | Setup |
 |---|:---:|:---:|---|
-| **Claude Code** (CLI / IDE) | ✅ | ✅ | `/plugin marketplace add kobiton/automate` then `/plugin install automate@kobiton` |
-| **Claude Cowork** (macOS / Windows desktop) | ✅ | ⚠️ Install-test pending | Cowork uses the same `.claude-plugin/plugin.json` manifest path + extension types as Claude Code per [Cowork extensions docs](https://claude.com/docs/cowork/3p/extensions); drop-in portability is currently being verified |
-| **Claude.ai (web)** | ✅ via Custom Connector | ❌ | Add `https://api.kobiton.com/mcp` as a Custom Connector at [claude.ai](https://claude.ai); the skill loader for `.claude-plugin/` skills does not run on the web surface |
-| **Claude Desktop** (macOS / Windows app) | ✅ via Custom Connector | ❌ | Add the Kobiton MCP as a Custom Connector; Claude Desktop is not currently documented as a Skills-capable surface in Anthropic's [Use Skills in Claude](https://support.claude.com/en/articles/12512180-use-skills-in-claude) doc |
-| **Claude mobile** (iOS / Android) | ✅ via Custom Connector | ❌ | Configure the Custom Connector on claude.ai (web) first; tools sync into the mobile app for use |
-| **Other MCP clients** (Cursor, Gemini CLI, Codex CLI, ChatGPT Apps SDK, Continue, Cline, …) | ✅ | ❌ | See [Install in Other MCP Clients](#install-in-other-mcp-clients) above for per-client setup |
+| **Claude Code** (CLI / IDE) | ✅ | ✅ | `/plugin install automate@kobiton` |
+| **Claude Cowork** (macOS / Windows) | ✅ | ⚠️ pending | Install via Cowork plugin marketplace (see notes) |
+| **Claude.ai (web)** | ✅ via Connector | ❌ | Add Custom Connector at [claude.ai](https://claude.ai) |
+| **Claude Desktop** (macOS / Windows) | ✅ via Connector | ❌ | Add Custom Connector (see notes) |
+| **Claude mobile** (iOS / Android) | ✅ via Connector | ❌ | Configure Connector at claude.ai web first |
+| Non-Claude MCP clients (Cursor, Gemini CLI, etc.) | ✅ | ❌ | [See above](#non-claude-mcp-client-capability-matrix-auth--agent-surface) |
 
-The take-home: **every Claude surface that supports MCP can call the atomic Kobiton tools.** The orchestrated `run-automation-suite` skill — which chains app upload, device selection, capability rendering, local Appium execution, and artifact collection — is currently exclusive to Claude Code; Cowork is the next likely landing point once the install test confirms cross-surface portability.
+**Atomic vs orchestrated** — every Claude surface that supports MCP can call the atomic Kobiton tools (`listDevices`, `reserveDevice`, `getSession`, `terminateSession`, …). The orchestrated `run-automation-suite` skill chains app upload, device selection, capability rendering, local Appium execution, and artifact collection; it is currently exclusive to Claude Code, and Cowork is the next likely landing point once the install test confirms cross-surface portability.
 
-For the full 10-row matrix covering claude.ai/code cloud sandbox, Claude Code Remote Control, Claude Dispatch, the Claude for Chrome extension, and the Claude API + MCP Connector developer surface — plus per-cell Anthropic-doc citations and the L1 / L2 / L3 architectural mapping (MCP protocol / client implementation / tool quality) — see [`docs/issue-53-one-pager.md`](docs/issue-53-one-pager.md).
+**Notes:**
+
+- **Cowork** uses the same `.claude-plugin/plugin.json` manifest path + extension types as Claude Code per the [Cowork extensions docs](https://claude.com/docs/cowork/3p/extensions). Drop-in plugin portability across Claude Code and Cowork is not yet formally documented by Anthropic; install-test is currently being verified.
+- **Claude Desktop** is not currently documented as a Skills-capable surface in Anthropic's [Use Skills in Claude](https://support.claude.com/en/articles/12512180-use-skills-in-claude) doc — the `.claude-plugin/` skill loader is absent there. Atomic MCP tools still work via the Custom Connector path.
+- **For the full 10-row matrix** covering claude.ai/code cloud sandbox, Claude Code Remote Control, Claude Dispatch, the Claude for Chrome extension, and the Claude API + MCP Connector developer surface — plus per-cell Anthropic-doc citations and the L1 / L2 / L3 architectural mapping — see [`docs/issue-53-one-pager.md`](docs/issue-53-one-pager.md).
 
 ## What You Can Do
 
