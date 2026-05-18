@@ -130,7 +130,7 @@ Never echo the full unmasked API key in chat.
 
 ## Step 5: Atomic write
 
-Build the new file content in memory, preserving every other profile untouched, and write atomically.
+Build the new file content in memory, preserving every other profile (both content and original position), and write atomically. When overwriting an existing profile, the new block replaces the old at the same position; only a genuinely new profile is appended at the end.
 
 ```bash
 KB_PROFILE=<chosen> KB_USER=<username> KB_KEY=<apiKey> KB_PORTAL=<portal> python3 <<'PY'
@@ -142,26 +142,34 @@ portal = os.environ["KB_PORTAL"]
 path = os.path.expanduser("~/.kobiton/.credentials")
 os.makedirs(os.path.dirname(path), exist_ok=True)
 
+new_block = "[" + name + "]\nKOBITON_USER=" + user + "\nKOBITON_API_KEY=" + key + "\nKOBITON_PORTAL=" + portal
+
 if os.path.exists(path):
     with open(path) as f:
         text = f.read()
     parts = re.split(r"(?m)^\s*\[\s*([^\]]+?)\s*\]\s*$", text)
     head = parts[0].strip()
     others = []
+    replaced = False
     for i in range(1, len(parts), 2):
         section_name = parts[i].strip()
         body = parts[i+1].strip()
-        if section_name == name: continue
-        others.append("[" + section_name + "]\n" + body)
+        if section_name == name:
+            # Replace in-place at the original position
+            others.append(new_block)
+            replaced = True
+        else:
+            others.append("[" + section_name + "]\n" + body)
     blocks = []
     if head:
         blocks.append(head)
     blocks.extend(others)
+    if not replaced:
+        # Profile is new — append at the end
+        blocks.append(new_block)
 else:
-    blocks = []
+    blocks = [new_block]
 
-new_block = "[" + name + "]\nKOBITON_USER=" + user + "\nKOBITON_API_KEY=" + key + "\nKOBITON_PORTAL=" + portal
-blocks.append(new_block)
 content = "\n\n".join(blocks) + "\n"
 
 tmp = path + ".tmp"
