@@ -116,30 +116,6 @@ Command:      node /path/to/test.js 9B211FFAZ0017F
 
 Wait for user confirmation, then execute the command **in the background** using your shell execution tool.
 
-**Immediately after launching the script**, wait **2 seconds** (to allow the session to initialize on Kobiton), then open the running session in the user's browser.
-
-**Determine the portal URL:** Read `.mcp.json` to get the MCP server URL, then map it to the portal base URL:
-
-| MCP Server | Portal Base URL |
-|------------|----------------|
-| `api.kobiton.com` | `https://portal.kobiton.com` |
-| `api-test-green.kobiton.com` | `https://portal-test.kobiton.com` |
-
-**Build the launch URL:**
-
-```
-<portal-base-url>/devices/launch?id=<deviceId>
-```
-
-Where `<deviceId>` is the ID of the selected device from Step 2 (returned by `listDevices`, `getDeviceStatus`, or `reserveDevice`).
-
-**Open the link** in the user's default browser:
-
-| Platform | Command |
-|----------|---------|
-| macOS | `open <url>` |
-| Linux | `xdg-open <url>` |
-
 ### 5. Open running session in browser
 
 Ask the user:
@@ -189,8 +165,6 @@ On Linux, use `xdg-open <url>` (browser selection is not supported — always op
 ### 6. Collect results
 
 While the background script is running, call `listSessions` with `deviceId=<deviceId>` (from Step 2) and `state='START'` to find the session that just triggered. Use the most recent session (first result) as the match.
-
-After opening the browser, call `listSessions` with `deviceId=<deviceId>` (from Step 2) and `state='START'` to find the session that just triggered. Use the most recent session (first result) as the match.
 
 Call `getSession` with the matched session ID to get detailed results.
 
