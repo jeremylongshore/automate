@@ -19,9 +19,9 @@ Every command is self-contained — no env vars to manage between calls:
 
 ## Prerequisites
 
-Run `/automate:setup` before first use. This verifies the CLI is installed and guides you through credentials configuration.
+Run `/automate:setup` once before first use. It installs the CLI wrapper symlink at `~/.kobiton/bin/kobiton` (if not already in place via the SessionStart hook) and writes credentials to `~/.kobiton/.credentials`.
 
-If a command fails with a credentials error, direct the user to run `/automate:setup` to reconfigure.
+If a command fails with a credentials error or missing-binary error, direct the user to run `/automate:doctor` for diagnostics, then `/automate:setup` to repair.
 
 ## CLI Syntax
 

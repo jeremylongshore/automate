@@ -7,7 +7,26 @@ allowed-tools:
 
 # Kobiton Automate Setup
 
-Fetch the user's Kobiton credentials via the `getCredential` MCP tool and write them to `~/.kobiton/.credentials`. After writing, recommend running `/automate:doctor` to verify.
+Bootstrap the plugin: ensure the CLI wrapper symlink is installed, then fetch the user's Kobiton credentials via the `getCredential` MCP tool and write them to `~/.kobiton/.credentials`. After writing, recommend running `/automate:doctor` to verify.
+
+## Step 0: Ensure the CLI wrapper symlink is installed
+
+The `run-interactive-test` skill depends on `~/.kobiton/bin/kobiton`. On Claude Code and Codex CLI this symlink is recreated automatically by a SessionStart hook; on other CLIs (e.g., Gemini), `/automate:setup` is the install entry point.
+
+Run the install script bundled with this plugin. This file (`setup.md`) lives at `<plugin-root>/commands/setup.md`, so the install script is at `<plugin-root>/scripts/install-cli.sh`. Resolve `<plugin-root>` to its absolute path and run:
+
+```bash
+bash <plugin-root>/scripts/install-cli.sh
+```
+
+The script is idempotent and silent on success. After it returns, sanity-check the result:
+
+```bash
+[ -L "$HOME/.kobiton/bin/kobiton" ] && echo "OK" || echo "MISSING"
+```
+
+- **`OK`**: symlink in place, continue to Step 1.
+- **`MISSING`**: the install script could not locate the bundled `run.sh` (e.g., binary not shipped for the current platform). Surface this to the user and continue to Step 1 anyway — credentials still need to be written so other tools work; only `run-interactive-test` is affected.
 
 ## Step 1: Fetch credentials via MCP
 
@@ -166,5 +185,9 @@ Replace `<chosen>`, `<username>`, `<apiKey>`, `<portal>` with the actual values 
 After successful write, tell the user:
 
 > "Profile `[<chosen>]` written to `~/.kobiton/.credentials`. Run `/automate:doctor` to verify everything is set up correctly."
+
+If the Step 0 sanity-check reported `MISSING`, also append:
+
+> "Note: the `~/.kobiton/bin/kobiton` CLI symlink could not be installed (likely an unsupported platform). MCP tools and `run-automation-suite` will still work; only `run-interactive-test` requires the symlink."
 
 Do not echo the API key in chat.

@@ -1,14 +1,28 @@
 #!/bin/bash
-# SessionStart hook: ensures ~/.kobiton/bin/kobiton symlink points to
-# the current plugin version's run.sh. Re-creates on every session start
-# so upgrades are picked up automatically.
+# Installs the ~/.kobiton/bin/kobiton symlink pointing at this plugin
+# version's run.sh wrapper. Idempotent — safe to invoke repeatedly.
+#
+# Called from three places:
+#   1. Claude Code's SessionStart hook (auto, every session)
+#   2. Codex CLI's SessionStart hook (auto; Codex sets
+#      CLAUDE_PLUGIN_ROOT for hook compatibility)
+#   3. /automate:setup command (manual, one-off per install — needed
+#      for CLIs whose hook spec we don't ride on yet, e.g. Gemini)
+#
+# Plugin root resolution: prefer CLAUDE_PLUGIN_ROOT if the host CLI
+# injected it; otherwise derive from this script's own location
+# (`<plugin-root>/scripts/install-cli.sh`).
 
 set -euo pipefail
 
-# CLAUDE_PLUGIN_ROOT is injected by Claude Code — not user-configurable
-[ -n "${CLAUDE_PLUGIN_ROOT:-}" ] || exit 0
+if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+  PLUGIN_ROOT="$CLAUDE_PLUGIN_ROOT"
+else
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  PLUGIN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+fi
 
-TARGET="${CLAUDE_PLUGIN_ROOT}/skills/run-interactive-test/scripts/run.sh"
+TARGET="${PLUGIN_ROOT}/skills/run-interactive-test/scripts/run.sh"
 LINK="$HOME/.kobiton/bin/kobiton"
 
 # Only act if the target script exists in this plugin
