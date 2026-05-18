@@ -7,7 +7,7 @@
 - New `/automate:setup` command — bootstraps `~/.kobiton/.credentials` from the authenticated MCP session, no manual file editing
 - New `/automate:doctor` command — read-only health checks for CLI install, credentials file, active profile, and required fields
 - New `getCredential` MCP tool — backs `/automate:setup`; returns the OAuth user's username, API key (existing or freshly generated), and portal URL
-- Session attribution: Appium sessions started via `run-automation-suite` now emit `kobiton:aiToolName`; MCP requests from Claude Code carry `X-AI-Tool-Name: Claude` for adoption analytics (KOB-52724)
+- Session attribution: Appium sessions started via `run-automation-suite` now emit `kobiton:aiToolName`; MCP requests from Claude Code, Codex CLI, and Gemini CLI carry `X-AI-Tool-Name` (set to the originating tool) for adoption analytics (KOB-52724)
 - Governance: CodeQL weekly scans + per-PR analysis, security issue routing template
 
 
