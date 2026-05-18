@@ -19,7 +19,7 @@ This is the one-pager committed to in [`#53` comment-4481683618](https://github.
 
 | Layer | What lives here | Horizon | Who owns it |
 |---|---|---|---|
-| **L1 — Protocol** | MCP spec (declarative tool chaining, file-input semantics, resource streaming, DCR, Skills-as-MCP-primitive). SEP proposals tracked at [`modelcontextprotocol`](https://github.com/modelcontextprotocol/modelcontextprotocol). | Multi-quarter; nothing imminent. | MCP working group (Anthropic + community) |
+| **L1 — Protocol** | MCP spec — declarative tool chaining ([SEP-1610](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1610)), file-input semantics ([SEP-2356](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2356)), resource streaming ([SEP-2532](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2532)), DCR ([SEP-1032](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1032)), Skills-as-MCP-primitive ([SEP-2640](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2640)). SEP proposals tracked at [`modelcontextprotocol`](https://github.com/modelcontextprotocol/modelcontextprotocol). | Multi-quarter; nothing imminent. | MCP working group (Anthropic + community) |
 | **L2 — Client implementation** | Skill loader (parses `SKILL.md` frontmatter), `allowed-tools` permission model, sandboxed local shell + FS, plugin install path, scheduled tasks, remote/local MCP transport. | Lands when a Claude client ships it. | Anthropic (per surface) |
 | **L3 — Tool quality** | Behaviour and shape of the 12 tools at `api.kobiton.com/mcp`. Bugs, missing fields, contradiction between read endpoints, ignored parameters, response-builder inconsistencies. | Lands on Kobiton's server release cadence. | Kobiton |
 
@@ -46,7 +46,7 @@ A correct architectural answer to a `#53` ask is one of these three layers. Conf
 | Layer | What this looks like at this layer |
 |---|---|
 | **L1 (protocol)** | None for the orchestration itself; only the standardized file-input semantics ([SEP-2356](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2356)) would obviate the local-Appium-toolchain assumption. Multi-quarter. |
-| **L2 (client implementation)** | This is where the ask actually lives. Per [Anthropic's "Use Skills in Claude"](https://support.claude.com/en/articles/12512180-use-skills-in-claude), Claude Desktop is not listed as a Skills-capable surface. The `allowed-tools` frontmatter vocabulary used by the skill (`Bash(node:*)`, `Read`, `Write`, `Edit`, `run_in_background: true`) has no parser in Claude Desktop. **Cowork has the skill loader and a sandboxed shell already.** The near-term answer to "Claude Desktop parity" is actually "Cowork parity, which gets you most of what testers want and lands today." |
+| **L2 (client implementation)** | This is where the ask actually lives. Per [Anthropic's "Use Skills in Claude"](https://support.claude.com/en/articles/12512180-use-skills-in-claude), Claude Desktop is not listed as a Skills-capable surface. The `allowed-tools` frontmatter list used by the skill (`Bash(node:*)`, `Read`, `Write`, `Edit`) — and the `run_in_background: true` Bash invocation parameter the skill relies on at step 4 — have no equivalent vocabulary or parser in Claude Desktop today. **Cowork has the skill loader and a sandboxed shell already.** The near-term answer to "Claude Desktop parity" is actually "Cowork parity, which gets you most of what testers want and lands today." |
 | **L3 (tool quality)** | None directly. |
 
 **Recommendation:** Reframe "Claude Desktop parity" as "Cowork-first" in customer-facing docs. Run a Cowork install test of `run-automation-suite` to confirm `allowed-tools` identifiers bind cleanly. If they don't, the frontmatter adjustment is small. A direct Claude Desktop port would require Anthropic to ship a skill loader in Desktop — bigger lift, not on our side to pull forward.
@@ -135,7 +135,7 @@ Cross-cutting reference for the analysis above. Verified via direct doc fetches 
 | F49 | [`#59`](https://github.com/kobiton/automate/issues/59) | `getApp` vs `listApps` | `is_expired` contradiction for same app id | Critical |
 | F50 | [`#60`](https://github.com/kobiton/automate/issues/60) | `uploadAppToStore` | Response `confirm_upload.description` vs `.path` v1/v2 contradiction | Low |
 
-Plugin-side close-out for each (`SKILL.md § Known Limitations` entries with agent workarounds) is in [`jeremylongshore/automate#54`](https://github.com/jeremylongshore/automate/pull/54).
+Plugin-side close-out for each (`SKILL.md § Known Limitations` entries with agent workarounds) is staged in the unmerged fork PR [`jeremylongshore/automate#54`](https://github.com/jeremylongshore/automate/pull/54). That PR also amends the existing R2-era `listSessions` 25k-token-cap entry to reflect that F45 (upstream [#55](https://github.com/kobiton/automate/issues/55)) invalidates the previously documented client-side `limit=10` mitigation — the server ignores the `limit` value, so the documented workaround now relies on `offset`-paging + client-side slicing rather than a default-cap setting.
 
 ---
 
@@ -146,7 +146,7 @@ Ordered by leverage (highest to lowest):
 1. **L3 / tool-quality fixes (F45–F50).** Kobiton-owned, lift every MCP client. Six discrete server-side fixes with empirical evidence already on hand.
 2. **L2 / Cowork install test.** Confirm `run-automation-suite` loads and runs in Cowork. If it does (most likely), this answers ask 1 (perceived Claude dependency reduction), most of ask 2 (Claude Desktop parity → reframed as Cowork-first), and the surface-level half of ask 3 (tester-first workflows via Cowork + Dispatch). One-afternoon scope.
 3. **L3 / orchestration consolidation.** Server-side consolidated upload + run flows (one tool wraps the multi-step dance). Bigger Kobiton-side scope; biggest cross-client payoff.
-4. **L1 / SEP tracking, not SEP blocking.** Watch SEP-1610, SEP-2356, SEP-2532, SEP-2640 land. None are gating any of the above.
+4. **L1 / SEP tracking, not SEP blocking.** Watch SEP-1610, SEP-2356, SEP-2532, [SEP-2640](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2640) land. None are gating any of the above.
 
 ---
 
