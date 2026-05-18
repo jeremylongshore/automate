@@ -34,8 +34,6 @@ Make sure you have:
 - **A supported AI CLI** - install [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview), [Copilot CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli), [Gemini CLI](https://github.com/google-gemini/gemini-cli), or [Codex CLI](https://github.com/openai/codex)
 - **A project directory** - your AI assistant must launch from a workspace, not from your home folder
 
-> **Platform support note:** all MCP tools and the `run-automation-suite` skill work on every platform the host CLI supports. The `run-interactive-test` skill ships a CLI binary that currently supports **macOS Apple Silicon (darwin-arm64) only**. Linux and macOS Intel support is on the roadmap.
-
 ## Installation
 
 ### Claude Code
@@ -242,6 +240,8 @@ To verify everything is wired correctly, run the diagnostic:
 |-------|-------------|
 | **run-automation-suite** | Guided workflow for app upload, device selection, local Appium script execution (Node.js, Python, .NET, Java), and result collection. |
 | **run-interactive-test** | Guided workflow for interactive testing using natural language. WebDriver actions, device operations (adb shell, logs, screen), file management (push/pull), and more. |
+
+> **Platform support note:** all MCP tools and the `run-automation-suite` skill work on every platform the host CLI supports. The `run-interactive-test` skill ships a CLI binary that currently supports **macOS Apple Silicon (darwin-arm64) only**.
 
 ## Commands
 
