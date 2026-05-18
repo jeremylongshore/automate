@@ -8,11 +8,11 @@ description: >-
   script directory. Trigger with "run kobiton tests" or "execute on kobiton
   devices".
 version: 1.0.2
-author: Kobiton Inc.
+author: Kobiton Inc. <support@kobiton.com>
 license: MIT
 tags: [mobile, testing, appium, automation, devices, kobiton]
 compatibility: "Designed for Claude Code; requires Node.js >= 20 and Appium 2.x for local script execution."
-allowed-tools: "Read, Write, Edit, Bash(node:*), Bash(python:*), Bash(dotnet:*), Bash(mvn:*), Bash(java:*), Bash(open:*), Bash(xdg-open:*)"
+allowed-tools: "Read, Bash(node:*), Bash(python:*), Bash(dotnet:*), Bash(mvn:*), Bash(java:*), Bash(open:*), Bash(xdg-open:*)"
 ---
 
 # Run Automation Suite
@@ -30,6 +30,18 @@ Before beginning the workflow, confirm:
 - A Kobiton MCP server connection is configured (one of `.mcp.json`, `.mcp.apikey-example.json`, or `.mcp.dev-local.json`).
 - The user has a directory of Appium test scripts (`.js`, `.py`, `.cs` / `.csproj`, or `.java`) ready to execute.
 - The render-capabilities helper at `skills/run-automation-suite/scripts/render-capabilities.js` is reachable from the working directory.
+
+## Authentication
+
+This skill calls tools served by the Kobiton MCP server at `api.kobiton.com/mcp`. Three authentication configurations ship with the plugin; one of them must be active before any MCP tool will respond:
+
+| Config file | Auth mechanism | When to use |
+|---|---|---|
+| `.mcp.json` (default) | OAuth 2.1 browser flow | Interactive Claude Code session for an end user |
+| `.mcp.apikey-example.json` | Basic auth header — `Authorization: Basic base64(username:apikey)` from the `KOBITON_AUTH` env var | CI / headless / scripted invocations; copy this file over `.mcp.json` |
+| `.mcp.dev-local.json` | Direct connection to `localhost:3000/mcp` | Kobiton internal development against a local MCP server build |
+
+If the skill is invoked and no MCP connection is established, abort step 1 and surface a clear error: the user needs to authenticate via `claude mcp` before any device or session call can succeed. Do NOT attempt to recover by retrying — the auth context is fixed at session start.
 
 ## Instructions
 
@@ -206,24 +218,18 @@ The links below cover the canonical Kobiton and Appium surfaces relevant to this
 
 ## Known Limitations
 
-Active gaps documented in the R2 audit (2026-05-04, Intent Solutions pilot). Listed here so the agent can plan around them — most require server-side changes at `api.kobiton.com/mcp` and are tracked at the linked upstream issues. Plugin-side mitigations noted where they exist.
+The full set of documented behavioural gaps in the Kobiton MCP surface — and the recommended agent workaround for each — lives in [`references/known-limitations.md`](references/known-limitations.md). Consult that file when a tool call returns an unexpected result and the symptom matches one of the categories below:
 
-- **`confirmAppUpload` returns before the async parser finishes** ([upstream #34](https://github.com/kobiton/automate/issues/34)). The tool returns a 200 OK with a `versionId` before the platform's app parser has determined READY vs FAILURE_PARSING. Downstream calls (`createSession`, `reserveDevice`) may then fail with no clear root cause. *Agent workaround:* after `confirmAppUpload` returns, poll `getApp(appId)` until `state` ∈ {`READY`, `FAILURE_PARSING`} before proceeding. Allow up to 60 seconds.
+- App upload state ambiguity, async parser races, or empty `FAILURE_PARSING` bodies
+- `reserveDevice` conflict ambiguity, post-`terminateSession` cooldown windows
+- W3C-strict Appium endpoint silently rejecting legacy `driver.getLogs()` calls
+- Per-command session data, screenshots, or assertion semantics not surfacing from any tool
+- Read-side field-naming divergence between `getSession` and `getSessionArtifacts`
+- `listSessions` 25k-token response cap, or a returned session count that doesn't match the requested `limit`
+- `getSession.video_url` null where video may exist; missing `has_video` indicator
+- `getSessionArtifacts` missing the documented `screenshots` category
+- `getDeviceStatus` returning only 3 fields when richer detail (battery, current session, network state) was expected
+- `getApp.is_expired` and `listApps.is_expired` disagreeing for the same app id
+- `uploadAppToStore` confirm-upload response carrying contradictory v1/v2 path strings
 
-- **`FAILURE_PARSING` response body is empty** ([upstream #34](https://github.com/kobiton/automate/issues/34)). When an upload enters `FAILURE_PARSING`, the API response does not currently carry `parse_error`, `category`, or `message` fields. *Agent workaround:* surface the bare `FAILURE_PARSING` state to the user with a note that more detail requires checking the Kobiton portal directly.
-
-- **`reserveDevice` conflict response lumps four failure modes** ([upstream #33](https://github.com/kobiton/automate/issues/33)). A `device_unavailable` response can mean: device is offline; device is currently utilizing; device is reserved by another user; the public-pool target is exhausted. Each implies a different retry strategy, but the current response shape does not distinguish them. *Agent workaround:* since the underlying mode is not surfaced, retrying the same device may or may not help; the safer default is to broaden the `listDevices` filter and select a different device, or surface to the user.
-
-- **`driver.getLogs('logcat'|'browser')` silently fails on the W3C-strict endpoint** ([upstream #36](https://github.com/kobiton/automate/issues/36)). Kobiton's Appium endpoint is W3C-strict; the legacy Selenium `POST /se/log` path returns "Unsupported URI". Older WebdriverIO / Selenium client versions hit this path by default and silently lose log output. *Agent workaround:* warn the user when their test script uses `driver.getLogs()` with the legacy log API; recommend upgrading the client or switching to W3C log API.
-
-- **Devices enter ~5 minute cleanup cooldown after `terminateSession`** ([upstream #36](https://github.com/kobiton/automate/issues/36)). During cooldown, `reserveDevice` returns the same ambiguous `device_unavailable` as the four conflict modes above. *Agent workaround:* if a `reserveDevice` call fails within 5 minutes of a `terminateSession` on the same device, treat the failure as transient cooldown and either wait 5 minutes or select a different device.
-
-- **Per-command session data + assertion semantics not exposed** ([upstream #37](https://github.com/kobiton/automate/issues/37)). Session records advertise `execution_data.all_command_data_available: true` and `command_screenshots_available: true`, but no tool currently surfaces the per-command stream, per-command screenshots, or pass/fail assertions. This blocks the `saveTestRun` + IQS test-case CRUD use case at [upstream #24](https://github.com/kobiton/automate/issues/24). *Agent workaround:* if the user asks to "save this session as a test case", direct them to the Kobiton portal manually; no plugin-side path exists today.
-
-- **Read-side shape divergence between `getSession` and `getSessionArtifacts`** ([upstream #35](https://github.com/kobiton/automate/issues/35)). The two endpoints use inconsistent field-naming (`device_name` vs `deviceName`, `start_time` vs `startTime`). *Agent workaround:* normalize field names when comparing data across the two endpoints.
-
-- **`xium-portal` live-view URL asymmetry** ([upstream #35](https://github.com/kobiton/automate/issues/35)). `liveViewUrl` returns the full Portal view; `deviceOnlyViewUrl` is the same URL with `?view=device-only` appended. The asymmetry is being documented in [upstream PR #29](https://github.com/kobiton/automate/pull/29). *Agent workaround:* use `liveViewUrl` for full-chrome demos, `deviceOnlyViewUrl` for embeds or device-only sharing.
-
-- **`listSessions` 25k-token response cap** ([upstream #35](https://github.com/kobiton/automate/issues/35)). Claude Code applies a 25k-token cap on MCP tool responses; `listSessions` responses with verbose `execution_data` per session can approach or exceed this cap. Empirically observed in the R2 audit (2026-05-04) that responses near the cap can drop fields or sessions without an explicit error surfaced to the agent. Plugin-side mitigation: default limit lowered to 10 per [tools/sessions.yaml](https://github.com/kobiton/automate/blob/main/tools/sessions.yaml). *Agent workaround:* if you need more than ~10 sessions, paginate explicitly via the `offset` parameter and verify the returned count matches expectations before treating the result as complete.
-
-For each finding above, the full evidence + repro + architectural-fix proposal lives on the upstream issue.
+Each entry in `references/known-limitations.md` carries: the upstream issue link, the symptom in plain language, severity for plugin DX, and the documented agent workaround. Reference rather than recite when the symptom matches.
