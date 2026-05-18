@@ -155,13 +155,13 @@ Different Claude surfaces (Claude Code, Cowork, Claude Desktop, the claude.ai we
 | Claude surface | Atomic MCP tools (`listDevices`, `reserveDevice`, `getSession`, …) | Orchestrated `run-automation-suite` skill | Setup |
 |---|:---:|:---:|---|
 | **Claude Code** (CLI / IDE) | ✅ | ✅ | `/plugin marketplace add kobiton/automate` then `/plugin install automate@kobiton` |
-| **Claude Cowork** (macOS / Windows desktop) | ✅ | ⚠️ Install-test pending | Cowork uses the same `.claude-plugin/plugin.json` manifest path + extension types as Claude Code per [Cowork extensions docs](https://claude.com/docs/cowork/3p/extensions); confirming drop-in portability is on the engagement-close checklist |
-| **claude.ai (web)** | ✅ via Custom Connector | ❌ | Add `https://api.kobiton.com/mcp` as a Custom Connector at [claude.ai](https://claude.ai); the skill loader for `.claude-plugin/` skills does not run on the web surface |
+| **Claude Cowork** (macOS / Windows desktop) | ✅ | ⚠️ Install-test pending | Cowork uses the same `.claude-plugin/plugin.json` manifest path + extension types as Claude Code per [Cowork extensions docs](https://claude.com/docs/cowork/3p/extensions); drop-in portability is currently being verified |
+| **Claude.ai (web)** | ✅ via Custom Connector | ❌ | Add `https://api.kobiton.com/mcp` as a Custom Connector at [claude.ai](https://claude.ai); the skill loader for `.claude-plugin/` skills does not run on the web surface |
 | **Claude Desktop** (macOS / Windows app) | ✅ via Custom Connector | ❌ | Add the Kobiton MCP as a Custom Connector; Claude Desktop is not currently documented as a Skills-capable surface in Anthropic's [Use Skills in Claude](https://support.claude.com/en/articles/12512180-use-skills-in-claude) doc |
 | **Claude mobile** (iOS / Android) | ✅ via Custom Connector | ❌ | Configure the Custom Connector on claude.ai (web) first; tools sync into the mobile app for use |
 | **Other MCP clients** (Cursor, Gemini CLI, Codex CLI, ChatGPT Apps SDK, Continue, Cline, …) | ✅ | ❌ | See [Install in Other MCP Clients](#install-in-other-mcp-clients) above for per-client setup |
 
-The take-home: **every Claude surface that supports MCP can call the atomic Kobiton tools.** The orchestrated `run-automation-suite` skill — which chains app upload, device selection, capability rendering, local Appium execution, and artifact collection — is Claude-Code-today; Cowork is the next likely landing point once the install test confirms cross-surface portability.
+The take-home: **every Claude surface that supports MCP can call the atomic Kobiton tools.** The orchestrated `run-automation-suite` skill — which chains app upload, device selection, capability rendering, local Appium execution, and artifact collection — is currently exclusive to Claude Code; Cowork is the next likely landing point once the install test confirms cross-surface portability.
 
 For the full 10-row matrix covering claude.ai/code cloud sandbox, Claude Code Remote Control, Claude Dispatch, the Claude for Chrome extension, and the Claude API + MCP Connector developer surface — plus per-cell Anthropic-doc citations and the L1 / L2 / L3 architectural mapping (MCP protocol / client implementation / tool quality) — see [`docs/issue-53-one-pager.md`](docs/issue-53-one-pager.md).
 
