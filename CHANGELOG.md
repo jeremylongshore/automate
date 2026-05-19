@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- New `docs/issue-53-one-pager.md` — architectural one-pager mapping each ask in `#53` to MCP protocol (L1) / client implementation (L2) / tool quality (L3) layers; includes a 10-row Claude surface compatibility matrix with per-cell Anthropic-doc citations
+- New `skills/run-automation-suite/references/known-limitations.md` — externalized Known Limitations reference (15 entries documenting working knowledge of behavioural gaps in the Kobiton MCP surface; loaded on-demand per Anthropic's progressive-disclosure pattern)
+- `SKILL.md`: new `## Known Limitations` section with category index pointing to the externalized reference file (closes anchor #61)
+
 ## 1.2.0 - 2026-05-18
 
 - Multi-CLI support: install on GitHub Copilot CLI, Gemini CLI, and Codex CLI in addition to Claude Code
