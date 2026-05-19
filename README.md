@@ -105,6 +105,30 @@ export KOBITON_AUTH="Basic $(echo -n 'username:apikey' | base64)"
 
 - **run-automation-suite** -- Guided workflow that walks you through app upload, device selection, local Appium script execution (Node.js, Python, .NET, Java), and result collection.
 
+## Agents (3)
+
+Specialized subagents that encapsulate parts of the `run-automation-suite` workflow. Claude Code reads agent definitions from [`agents/`](agents/) and may delegate specific decisions to them. Other MCP clients don't consume agent definitions today.
+
+| Agent | Role |
+|-------|------|
+| [`appium-capability-reconciler`](agents/appium-capability-reconciler.md) | Owns Step 3 of `run-automation-suite`. Parses test scripts (Node/Python/.NET/Java), applies the three-policy reconciliation per [`references/capabilities.md`](skills/run-automation-suite/references/capabilities.md). |
+| [`kobiton-session-triage`](agents/kobiton-session-triage.md) | Fires after non-success terminal state (`FAILED` / `TIMEOUT` / `ERROR`). Pulls `getSessionArtifacts`, matches the failure against the documented R2 audit catalog of known platform failure modes, surfaces structured root cause + recommended fix. |
+| [`device-picker`](agents/device-picker.md) | Owns Step 2. Translates fuzzy natural-language device requests (e.g. *"a Pixel 7 if available, otherwise any Android 13+"*) into a concrete `listDevices` filter + ranked candidates; confirms with the user before reserving. |
+
+The three agents above ship via [PR #67](https://github.com/kobiton/automate/pull/67).
+
+## Hooks (Claude Code-specific)
+
+This plugin ships [`hooks/hooks.json`](hooks/hooks.json) with four advisory-only handlers that fire `PreToolUse` and `PostToolUse` around the Kobiton MCP tool calls. All handlers are pure — no authenticated API calls from the hooks themselves.
+
+| Handler | Event | Matcher | What it does |
+|---------|-------|---------|--------------|
+| [`validate-userintent`](hooks/scripts/validate-userintent.mjs) | PreToolUse | every Kobiton tool | Validates the `userIntent` argument matches the documented format; denies the call if malformed. |
+| [`advise-pre-terminate-cooldown`](hooks/scripts/advise-pre-terminate-cooldown.mjs) | PreToolUse | `terminateSession` | Allows the call but injects a notice that the device enters ~5min cleanup cooldown post-termination. |
+| [`advise-app-upload-poll`](hooks/scripts/advise-app-upload-poll.mjs) | PostToolUse | `confirmAppUpload` | Injects an advisory recommending the agent poll `getApp(appId)` until the async parser finishes. |
+| [`advise-post-terminate-cooldown`](hooks/scripts/advise-post-terminate-cooldown.mjs) | PostToolUse | `terminateSession` | Confirms the cooldown window post-termination with `sessionId` for traceability. |
+
+Full design + threat model: [`hooks/README.md`](hooks/README.md) and [`hooks/THREAT-MODEL.md`](hooks/THREAT-MODEL.md). The hooks bundle ships via [PR #70](https://github.com/kobiton/automate/pull/70). Other MCP clients have no equivalent hook system; for cross-client observability the right substrate is server-side OpenTelemetry instrumentation (see closed audit issue [`#42`](https://github.com/kobiton/automate/issues/42) and the consolidated server-side recommendations PR).
 
 ## Running Automation Tests
 
