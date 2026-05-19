@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Hooks framework redesign: extends the existing `SessionStart` install-CLI hook with **four advisory-only** PreToolUse / PostToolUse handlers — `validate-userintent` (R2 §4 finding F19, enforces the `userIntent` parameter format on every Kobiton tool call), `advise-pre-terminate-cooldown` + `advise-post-terminate-cooldown` (R2 §5 finding F22, surfaces session-termination grace-period guidance), and `advise-app-upload-poll` (R2 §3 finding F11, advises on app-upload polling cadence). All four are advisory-only — they inject context strings via the `hookSpecificOutput` envelope, never block tool calls, never make authenticated API calls themselves. Adds `hooks/README.md` (usage + extension guide) and `hooks/THREAT-MODEL.md` (9-category threat model: T1-T9 covering arbitrary code execution, credential leakage, hook bypass, DoS, and PII leakage). Adds 28 negative-case tests across the four handlers (malformed JSON, missing fields, PII patterns, oversize input, command injection attempts)
+
 ## 1.2.0 - 2026-05-18
 
 - Multi-CLI support: install on GitHub Copilot CLI, Gemini CLI, and Codex CLI in addition to Claude Code
