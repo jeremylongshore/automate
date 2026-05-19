@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add `CLAUDE.md` contributor architecture doc — deeper context for Claude Code (and humans who want more depth than `CONTRIBUTING.md` covers) on the thin-plugin architecture, fork-sync workflow, file-sync rules for new tools/skills/agents/hooks, and DCO/Conventional-Commits expectations
+
 ## 1.2.0 - 2026-05-18
 
 - Multi-CLI support: install on GitHub Copilot CLI, Gemini CLI, and Codex CLI in addition to Claude Code
