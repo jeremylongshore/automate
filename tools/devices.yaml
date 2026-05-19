@@ -54,8 +54,10 @@ tools:
   - name: getDeviceStatus
     title: Get Device Status
     description: >
-      Get the real-time status of a specific device including availability,
-      current session info, battery level, and connection state.
+      Get the real-time availability status of a specific device. Returns
+      `deviceId`, `is_booked`, and `is_online`. Battery level, current
+      session info, and connection state are not currently surfaced
+      (F48 in docs/post-r3-tool-doc-drift.md).
     annotations:
       readOnlyHint: true
       destructiveHint: false

@@ -4,7 +4,10 @@ tools:
     title: List Apps
     description: >
       List uploaded app builds for the current user's organization. Returns app
-      ID, name, version, platform, upload date, and status.
+      ID, name, version, platform, upload date, and status. The `expiry_date`
+      and `is_expired` values returned here are the canonical timestamps for
+      app expiry; `getApp` may disagree
+      (F49 in docs/post-r3-tool-doc-drift.md).
     annotations:
       readOnlyHint: true
       destructiveHint: false
@@ -43,6 +46,10 @@ tools:
       The upload_headers must be sent exactly as returned or S3 will reject the upload.
       The confirm step (step 3) triggers Kobiton to parse the file and create the app
       record. Without it, the file is orphaned in S3.
+      Note: the `confirm_upload` field in this response may carry contradictory
+      v1 vs v2 endpoint hints — treat `confirm_upload.path` as canonical since
+      it is what an HTTP client actually issues
+      (F50 in docs/post-r3-tool-doc-drift.md).
     annotations:
       readOnlyHint: false
       destructiveHint: false
@@ -102,7 +109,10 @@ tools:
     title: Get App
     description: >
       Get detailed information about an app including name, platform, state, and
-      optionally all version history.
+      optionally all version history. Note: `is_expired` here may not match
+      `listApps` for the same app id; for canonical expiry use the
+      `expiry_date` timestamp returned by `listApps`
+      (F49 in docs/post-r3-tool-doc-drift.md).
     annotations:
       readOnlyHint: true
       destructiveHint: false

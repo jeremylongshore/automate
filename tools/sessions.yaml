@@ -5,6 +5,9 @@ tools:
     description: >
       List test sessions with filters for status, device, platform, and date
       range. Returns session ID, status, device info, duration, and timestamps.
+      Note: the server may return its default page size if the requested
+      limit is not honored — verify the count of items in the response
+      (F45 in docs/post-r3-tool-doc-drift.md).
     annotations:
       readOnlyHint: true
       destructiveHint: false
@@ -61,6 +64,9 @@ tools:
     description: >
       Get detailed information about a specific test session including commands
       executed, device info, desired capabilities, metadata, and test results.
+      The response includes a `video_url` field which may be null; no separate
+      `has_video` indicator is provided
+      (F46 in docs/post-r3-tool-doc-drift.md).
     annotations:
       readOnlyHint: true
       destructiveHint: false
@@ -83,7 +89,8 @@ tools:
     title: Get Session Artifacts
     description: >
       Get download URLs for session artifacts including video recording, device
-      logs, screenshots, and test reports.
+      logs, and test reports. Screenshots are not currently surfaced in this
+      response (F47 in docs/post-r3-tool-doc-drift.md).
     annotations:
       readOnlyHint: true
       destructiveHint: false
