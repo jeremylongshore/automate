@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add 3 specialized agents under `agents/` — `appium-capability-reconciler` (diffs Appium capabilities against Kobiton's supported list), `device-picker` (turns natural-language device asks into one Kobiton UDID), `kobiton-session-triage` (narrows a failed session to one root-cause category from logs + artifacts). Clean Anthropic agent spec (`name` + `description` + `tools` allowlist); compatible with Claude Code's `agents/` directory convention
+
 ## 1.2.0 - 2026-05-18
 
 - Multi-CLI support: install on GitHub Copilot CLI, Gemini CLI, and Codex CLI in addition to Claude Code
