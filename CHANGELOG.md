@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add "Claude surface compatibility" section to README — 6-row matrix answering "what works where" across Claude Code, Cowork, claude.ai web, Claude Desktop, Claude mobile, and other MCP clients. Distinguishes the atomic MCP tools (every surface that supports MCP can call them) from the orchestrated `run-automation-suite` skill (Claude-Code-today, Cowork-next pending install-test). Per-cell wording cites Anthropic's published docs (Cowork extensions doc, "Use Skills in Claude" support article)
+
 ## 1.2.0 - 2026-05-18
 
 - Multi-CLI support: install on GitHub Copilot CLI, Gemini CLI, and Codex CLI in addition to Claude Code
