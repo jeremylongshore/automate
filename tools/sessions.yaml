@@ -8,6 +8,8 @@ tools:
     annotations:
       readOnlyHint: true
       destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -64,6 +66,8 @@ tools:
     annotations:
       readOnlyHint: true
       destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -87,6 +91,8 @@ tools:
     annotations:
       readOnlyHint: true
       destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
@@ -110,6 +116,8 @@ tools:
     annotations:
       readOnlyHint: false
       destructiveHint: true
+      idempotentHint: false
+      openWorldHint: false
     inputSchema:
       type: object
       properties:
